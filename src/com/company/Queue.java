@@ -12,24 +12,11 @@ class Queue
 	// an item 
 	int item;
 
-	FileInputStream in = null;
-	FileOutputStream out = null;
+	CircularQueue buffer;
 
 	Queue(int size){
-		CircularQueue buffer = new CircularQueue(size);
 
-		try {/*from w  ww.  ja v  a2  s.c  o m*/
-			in = new FileInputStream("xanadu.txt");
-			out = new FileOutputStream("outagain.txt");
-			int c;
-
-			/*while ((c = in.read()) != -1) {
-				out.write(c);
-			}*/
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		buffer = new CircularQueue(size);
 
 	}
 	
@@ -51,7 +38,8 @@ class Queue
 		} 
 		
 		// consumer consuming an item 
-		System.out.println("Consumer consumed item : " + item); 
+		System.out.println("Consumer consumed item : " + item);
+
 		
 		// After consumer consumes the item, 
 		// it releases semProd to notify producer 
@@ -70,21 +58,14 @@ class Queue
 		} 
 		
 		// producer producing an item 
-		this.item = item; 
+		//this.item = item;
+
+		buffer.enQueue(item);
 		
 		System.out.println("Producer produced item : " + item); 
 		
 		// After producer produces the item, 
 		// it releases semCon to notify consumer 
 		semCon.release(); 
-	}
-
-	void close(){
-		if (in != null) {
-			in.close();
-		}
-		if (out != null) {
-			out.close();
-		}
 	}
 } 

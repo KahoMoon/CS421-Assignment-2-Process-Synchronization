@@ -2,36 +2,37 @@ package com.company;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import java.io.FileNotFoundException;
 
 public class Main {
 
     public static void main(String[] args) {
-        // creating buffer queue
 
         int size = 1024;
         int max = 5;
 
-        FileInputStream in = null;
-        FileOutputStream out = null;
-
         try {
-            in = new FileInputStream("xanadu.txt");
-            out = new FileOutputStream("outagain.txt");
+
+            byte[] buffer = new byte[size];
+            InputStream in = new FileInputStream("C:\\Users\\kahom\\IdeaProjects\\CS421 Assignment 2 Process Synchronization\\src\\com\\company\\New OpenDocument Text.txt");
+            OutputStream out = new FileOutputStream("outputfile.txt");
             int c;
+
+            //start consumer/producer
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        Queue q = new Queue(size);
 
         // starting consumer thread
-        new Consumer(q, max);
+        //new Consumer(q, max);
 
         // starting producer thread
-        new Producer(q, max);
+        //new Producer(q, max);
     }
 }
 

@@ -1,47 +1,24 @@
 package com.company;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class Main {
+    public static void main(String[] args) throws IOException {
 
-    public static void main(String[] args) {
+        Task task = new Task("C:\\Users\\kahom\\IdeaProjects\\CS421 Assignment 2 Process Synchronization\\src\\com\\company\\New OpenDocument Text.txt");
 
-        int size = 1024;
-        int max = 5;
+        Thread producer = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    task.producer();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
-        try {
+        producer.start();
 
-            byte[] buffer = new byte[size];
-            InputStream in = new FileInputStream("C:\\Users\\kahom\\IdeaProjects\\CS421 Assignment 2 Process Synchronization\\src\\com\\company\\New OpenDocument Text.txt");
-            OutputStream out = new FileOutputStream("outputfile.txt");
-            int c;
-
-            //start consumer/producer
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-
-        // starting consumer thread
-        //new Consumer(q, max);
-
-        // starting producer thread
-        //new Producer(q, max);
     }
 }
-
-
-/*
-consumer opens in stream to file
-consumer puts a random number of bytes from file to buffer
-producer opens out stream to file
-producer puts a random number of bytes from buffer to file
-
-in file >> producer >> buffer >> consumer >> outfile
- */

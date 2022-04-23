@@ -48,40 +48,11 @@ public class Task {
     byte[] bFile;
 
     public Task(String fileName) throws IOException {
-        file = new File(fileName);
-        fileInputStream = new FileInputStream(file);
-        fileLength = (int) file.length();
-        bFile = new byte[fileLength];
 
-        fileInputStream.read(bFile);
-        fileInputStream.close();
-
-        bFileArr = new ArrayDeque<>();
-        for (int i = 0; i < bFile.length; i++) {
-            bFileArr.add(bFile[i]);
-        }
     }
 
     public void producer() throws InterruptedException {
-        ArrayDeque<Byte> copy = new ArrayDeque<>(bFileArr);
-        while (!bFileArr.isEmpty()) {
-            readWrite.acquire();
 
-            int randomNumber = random.nextInt(n + 1 - 1) + 1;
-            for (int i = 0; i < 2; i++) {
-                try {
-                    byte removedByte = bFileArr.remove();
-                    buffer.add(removedByte);
-                } catch (Exception e) {
-
-                }
-            }
-
-            readWrite.release();
-        }
-        /*System.out.println(buffer.toString().compareTo(copy.toString()));
-        System.out.println(copy + "\n\n");
-        System.out.println(buffer);*/
     }
 
     public void consumer() {

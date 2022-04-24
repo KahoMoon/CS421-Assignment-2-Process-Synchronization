@@ -1,8 +1,6 @@
 package com.company;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.List;
@@ -40,15 +38,36 @@ public class Task {
      */
     FileInputStream fileInputStream;
 
+    FileOutputStream fileOutputStream;
+
     /**
      * array holding file data as bytes
      */
-    ArrayDeque<Byte> bFileArr;
+    ArrayDeque<Integer> bFileArr;
 
     byte[] bFile;
 
     public Task(String fileName) throws IOException {
+        bFileArr = new ArrayDeque<>();
+        fileInputStream = new FileInputStream(fileName);
+        fileOutputStream = new FileOutputStream("copy.txt");
 
+        int b;
+
+        while ((b = fileInputStream.read()) != -1) {
+            bFileArr.add(b);
+
+
+        }
+
+        int arrSize = bFileArr.size();
+        for (int i = 0; i < arrSize; i++) {
+            int t = bFileArr.removeFirst();
+            fileOutputStream.write(t);
+        }
+
+        fileInputStream.close();
+        fileOutputStream.close();
     }
 
     public void producer() throws InterruptedException {

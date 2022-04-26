@@ -40,42 +40,37 @@ public class Task {
 
     FileOutputStream fileOutputStream;
 
-    /**
-     * array holding file data as bytes
-     */
-    ArrayDeque<Integer> bFileArr;
-
     byte[] bFile;
 
     public Task(String fileName) throws IOException {
-        bFileArr = new ArrayDeque<>();
-        fileInputStream = new FileInputStream(fileName);
+        RandomAccessFile f = new RandomAccessFile(fileName, "r");
+        bFile = new byte[(int)f.length()];
+        f.readFully(bFile);
+
+        /*try (FileOutputStream fos = new FileOutputStream("copy.txt")) {
+            fos.write(bFile);
+        }*/
+
+        for (int i = 0; i < f.length(); i++) {
+            buffer.add(bFile[i]);
+        }
+
         fileOutputStream = new FileOutputStream("copy.txt");
-
-        int b;
-
-        while ((b = fileInputStream.read()) != -1) {
-            bFileArr.add(b);
-
+        for (int i = 0; i < bFile.length; i++) {
 
         }
-
-        int arrSize = bFileArr.size();
-        for (int i = 0; i < arrSize; i++) {
-            int t = bFileArr.removeFirst();
-            fileOutputStream.write(t);
-        }
-
-        fileInputStream.close();
-        fileOutputStream.close();
     }
 
     public void producer() throws InterruptedException {
+        readWrite.acquire();
 
+        readWrite.release();
     }
 
-    public void consumer() {
+    public void consumer() throws InterruptedException {
+        readWrite.acquire();
 
+        readWrite.release();
     }
 
 }

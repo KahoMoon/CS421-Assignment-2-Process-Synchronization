@@ -42,8 +42,10 @@ public class Task {
 
     byte[] bFile;
 
+    RandomAccessFile f;
+
     public Task(String fileName) throws IOException {
-        RandomAccessFile f = new RandomAccessFile(fileName, "r");
+        f = new RandomAccessFile(fileName, "r");
         bFile = new byte[(int)f.length()];
         f.readFully(bFile);
 
@@ -51,24 +53,51 @@ public class Task {
             fos.write(bFile);
         }*/
 
-        for (int i = 0; i < f.length(); i++) {
+        /*for (int i = 0; i < f.length(); i++) {
             buffer.add(bFile[i]);
-        }
+        }*/
 
-        fileOutputStream = new FileOutputStream("copy.txt");
+        /*fileOutputStream = new FileOutputStream("copy.txt");
         for (int i = 0; i < bFile.length; i++) {
-
-        }
+            fileOutputStream.write(bFile[i]);
+        }*/
     }
 
-    public void producer() throws InterruptedException {
+    public void producer() throws InterruptedException, IOException {
         readWrite.acquire();
+
+        int randomNum;
+        for (int i = 0; i < f.length(); i++) {
+            randomNum = random.nextInt(n + 1 - 1) + 1;
+            if (randomNum < f.length() - i) {
+                for (int x = 0; x < randomNum; x++) {
+                    buffer.add(bFile[i]);
+                    i++;
+                    //System.out.println("asdf");
+                }
+            }
+            //System.out.println("_____________");
+        }
 
         readWrite.release();
     }
 
-    public void consumer() throws InterruptedException {
+    public void consumer() throws InterruptedException, IOException {
         readWrite.acquire();
+
+        int randomNum;
+        fileOutputStream = new FileOutputStream("copy.txt");
+        for (int i = 0; i < bFile.length; i++) {
+            randomNum = random.nextInt(n + 1 - 1) + 1;
+            if (randomNum < bFile.length - i) {
+                for (int x = 0; x < randomNum; x++) {
+                    fileOutputStream.write(bFile[i]);
+                    i++;
+                    System.out.println("asdf");
+                }
+            }
+            System.out.println("_____________");
+        }
 
         readWrite.release();
     }

@@ -1,10 +1,7 @@
 package com.company;
 
 import java.io.*;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
 public class Task {
@@ -12,26 +9,36 @@ public class Task {
     /**
      * semaphore for accessing buffer
      */
-    private Semaphore readWrite = new Semaphore(1);
-
-    /**
-     * buffer for bytes between the producer and consumer
-     */
-    private ArrayDeque<Byte> buffer = new ArrayDeque<>();
+    private final Semaphore readWrite = new Semaphore(1);
 
     /**
      * max random number of bytes per iteration
      */
     int n = 10;
 
+    /**
+     * intermediate for byte array between producer/consumer
+     */
+    ArrayDeque<Byte> buffer;
+
     Random random = new Random();
 
     /**
      * file to be copied
      */
-    File file;
+    File inFile;
 
-    int fileLength;
+    /**
+     * copy of the file
+     */
+    File outFile;
+
+    /**
+     * size of the file
+     */
+    int fileSize;
+
+    int bufferSize;
 
     /**
      * input stream for file
@@ -40,66 +47,94 @@ public class Task {
 
     FileOutputStream fileOutputStream;
 
-    byte[] bFile;
-
-    RandomAccessFile f;
 
     public Task(String fileName) throws IOException {
-        f = new RandomAccessFile(fileName, "r");
-        bFile = new byte[(int)f.length()];
-        f.readFully(bFile);
 
-        /*try (FileOutputStream fos = new FileOutputStream("copy.txt")) {
-            fos.write(bFile);
-        }*/
+        inFile = new File(fileName);
+        fileInputStream = new FileInputStream(inFile);
 
-        /*for (int i = 0; i < f.length(); i++) {
-            buffer.add(bFile[i]);
-        }*/
+        fileSize = (int) inFile.length();
+        n = fileSize;
+        bufferSize = fileSize;
+        outFile = new File("copy" + getFileExtension(inFile));
+        fileOutputStream = new FileOutputStream(outFile);
 
-        /*fileOutputStream = new FileOutputStream("copy.txt");
-        for (int i = 0; i < bFile.length; i++) {
-            fileOutputStream.write(bFile[i]);
-        }*/
+        buffer = new ArrayDeque<>();
+
     }
 
     public void producer() throws InterruptedException, IOException {
-        readWrite.acquire();
+        //readWrite.acquire();
 
-        int randomNum;
-        for (int i = 0; i < f.length(); i++) {
-            randomNum = random.nextInt(n + 1 - 1) + 1;
-            if (randomNum < f.length() - i) {
-                for (int x = 0; x < randomNum; x++) {
-                    buffer.add(bFile[i]);
-                    i++;
-                    //System.out.println("asdf");
-                }
+        /**
+         *
+         *
+         *
+         * move acquire and release inside the while loop
+         *
+         *
+         *
+         */
+
+        while (fileSize > 0) {
+            int randomNumber = random.nextInt(n + 1 - 1) + 1;
+            byte[] b = new byte[randomNumber];
+
+            fileInputStream.read(b);
+
+            /*for (int i = 0; i < b.length; i++) {
+                System.out.println(b[i]);
+            }*/
+
+            fileSize = fileSize - randomNumber;
+            n = fileSize;
+
+            for (int i = 0; i < b.length; i++) {
+                buffer.push(b[i]);
             }
-            //System.out.println("_____________");
+
+            /*int bufferSizeTemp = buffer.size();
+            for (int i = 0; i < bufferSizeTemp; i++) {
+                System.out.println(buffer.pop());
+            }*/
+
+            //fileOutputStream.write(b);
         }
 
-        readWrite.release();
+        for (Byte item: buffer) {
+            System.out.println(item);
+        }
+
+        //readWrite.release();
     }
 
     public void consumer() throws InterruptedException, IOException {
         readWrite.acquire();
 
-        int randomNum;
-        fileOutputStream = new FileOutputStream("copy.txt");
-        for (int i = 0; i < bFile.length; i++) {
-            randomNum = random.nextInt(n + 1 - 1) + 1;
-            if (randomNum < bFile.length - i) {
-                for (int x = 0; x < randomNum; x++) {
-                    fileOutputStream.write(bFile[i]);
-                    i++;
-                    System.out.println("asdf");
-                }
+        while (!buffer.isEmpty()) {
+
+            for (Byte item: buffer) {
+                System.out.println(item);
             }
-            System.out.println("_____________");
+
+            /*int randomNumber = random.nextInt(buffer.size() + 1 - 1) + 1;
+
+            for (int i = 0; i < randomNumber; i++) {
+                fileOutputStream.write(buffer.pop());
+            }*/
+
         }
 
         readWrite.release();
+    }
+
+    private String getFileExtension(File file) {
+        String name = file.getName();
+        int lastIndexOf = name.lastIndexOf(".");
+        if (lastIndexOf == -1) {
+            return "";
+        }
+        return name.substring(lastIndexOf);
     }
 
 }

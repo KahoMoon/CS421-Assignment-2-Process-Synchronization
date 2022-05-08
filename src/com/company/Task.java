@@ -54,7 +54,9 @@ public class Task {
         fileInputStream = new FileInputStream(inFile);
 
         fileSize = (int) inFile.length();
-        n = fileSize;
+        if (n > fileSize || n <= 1) {
+            n = fileSize;
+        }
         bufferSize = fileSize;
         outFile = new File("copy" + getFileExtension(inFile));
         fileOutputStream = new FileOutputStream(outFile);
@@ -64,19 +66,9 @@ public class Task {
     }
 
     public void producer() throws InterruptedException, IOException {
-        //readWrite.acquire();
-
-        /**
-         *
-         *
-         *
-         * move acquire and release inside the while loop
-         *
-         *
-         *
-         */
 
         while (fileSize > 0) {
+            readWrite.acquire();
             int randomNumber = random.nextInt(n + 1 - 1) + 1;
             byte[] b = new byte[randomNumber];
 
@@ -99,33 +91,41 @@ public class Task {
             }*/
 
             //fileOutputStream.write(b);
+            //System.out.println("asdfSADF" + buffer.size());
+            readWrite.release();
         }
 
-        for (Byte item: buffer) {
+        /*for (Byte item: buffer) {
             System.out.println(item);
-        }
+        }*/
 
-        //readWrite.release();
     }
 
     public void consumer() throws InterruptedException, IOException {
-        readWrite.acquire();
 
-        while (!buffer.isEmpty()) {
+        while (bufferSize > 0) {
+            readWrite.acquire();
 
-            for (Byte item: buffer) {
-                System.out.println(item);
+            //generate random number and create byte array with that random size
+            int randomNumber = random.nextInt(bufferSize + 1 - 1) + 1;
+            byte[] b = new byte[randomNumber];
+
+            for (int i = 0 ; i < randomNumber; i++) {
+                try {
+                    b[i] = buffer.pollLast();
+                } catch (Exception e){
+
+                }
+                //System.out.println(b[i]);
             }
 
-            /*int randomNumber = random.nextInt(buffer.size() + 1 - 1) + 1;
+            bufferSize = bufferSize - randomNumber;
 
-            for (int i = 0; i < randomNumber; i++) {
-                fileOutputStream.write(buffer.pop());
-            }*/
+            fileOutputStream.write(b);
 
+            readWrite.release();
         }
 
-        readWrite.release();
     }
 
     private String getFileExtension(File file) {
